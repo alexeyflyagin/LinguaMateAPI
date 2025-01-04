@@ -1,0 +1,3 @@
+class LinguaMateAPIException(Exception):
+    pass
+
