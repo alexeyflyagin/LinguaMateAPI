@@ -7,7 +7,7 @@ from src.dao import dao_account, dao_session
 from src.data.base.session_manager_base import SessionManager
 from src.services.exceptions.service import ServiceError, AccountNotFound, TokenGenerationError, \
     AccountAlreadyExistsError
-from src.models.auth_models import AuthData, AuthResponse, SignupData
+from src.models.auth import AuthData, AuthResponse, SignupData
 from src.services.base.auth_service_base import AuthService
 from src.services.utils import raise_exception_if_none, raise_exception_if_not_none
 

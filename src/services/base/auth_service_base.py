@@ -1,7 +1,7 @@
 from abc import ABC
 
 from src.data.base.session_manager_base import SessionManager
-from src.models.auth_models import AuthData, AuthResponse, SignupData
+from src.models.auth import AuthData, AuthResponse, SignupData
 
 
 class AuthService(ABC):

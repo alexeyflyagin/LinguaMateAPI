@@ -3,17 +3,19 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.api.exceptions import InternalServerHTTPException
 from src.di.app_container import di
 from src.services.exceptions.service import AccountNotFound, ServiceError, AccountAlreadyExistsError
-from src.models.auth_models import AuthData, AuthResponse, SignupData
+from src.models.auth import AuthData, AuthResponse, SignupData
 from src.services.base.auth_service_base import AuthService
 
-router = APIRouter()
+router = APIRouter(
+    tags=['Authorization']
+)
 
 
 @router.post("/auth/", response_model=AuthResponse)
 async def auth(
         auth_data: AuthData,
         auth_service: AuthService = Depends(lambda: di.services.auth_service())
-):
+) -> AuthResponse:
     try:
         response: AuthResponse = await auth_service.auth(auth_data)
         return response
@@ -24,13 +26,14 @@ async def auth(
 
 
 @router.post("/signup/")
-async def auth(
+async def sign_up(
         signup_data: SignupData,
         auth_service: AuthService = Depends(lambda: di.services.auth_service())
 ):
     try:
         await auth_service.signup(signup_data)
     except AccountAlreadyExistsError:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account with this phone number already exists.")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Account with this phone number already exists.")
     except ServiceError:
         raise InternalServerHTTPException()

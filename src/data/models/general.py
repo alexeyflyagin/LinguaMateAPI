@@ -38,7 +38,8 @@ class PhraseOrm(Base):
     id: Mapped[int] = mapped_column(INTEGER, primary_key=True, autoincrement=True)
     account_id: Mapped[int] = mapped_column(BIGINT, ForeignKey(column="account.id", ondelete=CASCADE), nullable=False)
     phrase: Mapped[str] = mapped_column(VARCHAR, nullable=False)
-    translates: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    phrase_lower: Mapped[str] = mapped_column(VARCHAR, nullable=False)
+    translations: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
 
 class AccountAndWordOrm(Base):
