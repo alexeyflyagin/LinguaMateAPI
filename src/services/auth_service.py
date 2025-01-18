@@ -77,7 +77,7 @@ class AuthServiceImpl(AuthService):
         try:
             async with self._session_manager.get_session() as s:
                 account = await dao_session.get_by_token(s, token)
-                is_valid = True if not account else False
+                is_valid = True if account else False
                 return CheckTokenResponse(is_valid=is_valid)
         except Exception as e:
             logging.error(e)
