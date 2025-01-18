@@ -32,4 +32,9 @@ class AuthData(BaseModel):
 
 class AuthResponse(BaseModel):
     account_id: int
+    nickname: str
     token: UUID
+
+
+class CheckTokenResponse(BaseModel):
+    is_valid: bool

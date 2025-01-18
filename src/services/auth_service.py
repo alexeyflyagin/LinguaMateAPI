@@ -7,7 +7,7 @@ from src.dao import dao_account, dao_session
 from src.data.base.session_manager_base import SessionManager
 from src.services.exceptions.service import ServiceError, AccountNotFound, TokenGenerationError, \
     AccountAlreadyExistsError
-from src.models.auth import AuthData, AuthResponse, SignupData
+from src.models.auth import AuthData, AuthResponse, SignupData, CheckTokenResponse
 from src.services.base.auth_service_base import AuthService
 from src.services.utils import raise_exception_if_none, raise_exception_if_not_none
 
@@ -39,7 +39,7 @@ class AuthServiceImpl(AuthService):
                 new_session = await dao_session.create(s, account.id, new_token)
                 s.add(new_session)
 
-                res = AuthResponse(account_id=account.id, token=new_token)
+                res = AuthResponse(account_id=account.id, token=new_token, nickname=account.nickname)
                 await s.commit()
                 return res
         except AccountNotFound as e:
@@ -69,6 +69,16 @@ class AuthServiceImpl(AuthService):
         except AccountAlreadyExistsError as e:
             logging.info(e)
             raise
+        except Exception as e:
+            logging.error(e)
+            raise ServiceError()
+
+    async def check_token(self, token: UUID) -> CheckTokenResponse:
+        try:
+            async with self._session_manager.get_session() as s:
+                account = await dao_session.get_by_token(s, token)
+                is_valid = True if not account else False
+                return CheckTokenResponse(is_valid=is_valid)
         except Exception as e:
             logging.error(e)
             raise ServiceError()
