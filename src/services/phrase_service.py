@@ -3,7 +3,8 @@ from uuid import UUID
 
 from src.dao import dao_account, dao_session, dao_phrase
 from src.data.base.session_manager_base import SessionManager
-from src.models.phrase import AddPhraseData, AddPhraseResponse, PhraseEntity, GetPhrasesResponse, GetPhrasesData
+from src.models.phrase import AddPhraseData, AddPhraseResponse, PhraseEntity, GetPhrasesResponse, GetPhrasesData, \
+    AddPhrasesData, AddPhrasesResponse
 from src.services.base.phrase_service_base import PhraseService
 from src.services.exceptions.service import ServiceError, InvalidTokenError, NotUniqueError, NotFoundError, AccessError
 from src.services.utils import raise_exception_if_none, raise_exception_if_not_none
@@ -35,6 +36,37 @@ class PhraseServiceImpl(PhraseService):
         except NotUniqueError as e:
             logging.info(e)
             raise
+        except InvalidTokenError as e:
+            logging.info(e)
+            raise
+        except Exception as e:
+            logging.error(e)
+            raise ServiceError()
+
+    async def add_phrases(
+            self,
+            token: UUID,
+            data: AddPhrasesData,
+    ) -> AddPhrasesResponse:
+        try:
+            async with self._session_manager.get_session() as s:
+                session = await dao_session.get_by_token(s, token, block_row=True)
+                raise_exception_if_none(session, e=InvalidTokenError())
+                account = await dao_account.get_by_id(s, session.account_id, block_row=True)
+                already_exists: list[str] = []
+                added_phrase_ids: dict[str, int] = {}
+                for phrase_data in data.phrases:
+                    exist_phrase = await dao_phrase.get_by_account_id_and_phrase_lower(
+                        s, account_id=account.id, phrase_lower=phrase_data.phrase.lower())
+                    if exist_phrase:
+                        already_exists.append(phrase_data.phrase)
+                        continue
+                    phrase = await dao_phrase.create(
+                        s, account_id=account.id, phrase=phrase_data.phrase, translations=phrase_data.translations)
+                    added_phrase_ids[phrase.phrase] = phrase.id
+                res = AddPhrasesResponse(added_ids=added_phrase_ids, already_exists=already_exists)
+                await s.commit()
+                return res
         except InvalidTokenError as e:
             logging.info(e)
             raise

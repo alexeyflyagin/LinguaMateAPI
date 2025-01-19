@@ -6,7 +6,8 @@ from starlette import status
 
 from src.api.exceptions import TokenInvalidateHTTPException, InternalServerHTTPException
 from src.di.app_container import di
-from src.models.phrase import AddPhraseResponse, AddPhraseData, PhraseEntity, GetPhrasesResponse, GetPhrasesData
+from src.models.phrase import AddPhraseResponse, AddPhraseData, PhraseEntity, GetPhrasesResponse, GetPhrasesData, \
+    AddPhrasesData, AddPhrasesResponse
 from src.services.base.phrase_service_base import PhraseService
 from src.services.exceptions.service import InvalidTokenError, ServiceError, NotUniqueError, NotFoundError
 
@@ -27,6 +28,21 @@ async def add_phrase(
         return response
     except NotUniqueError:
         raise HTTPException(status.HTTP_409_CONFLICT, detail="This phrase already exists.")
+    except InvalidTokenError:
+        raise TokenInvalidateHTTPException()
+    except ServiceError:
+        raise InternalServerHTTPException()
+
+
+@router.post("/addPhrases/", response_model=AddPhrasesResponse)
+async def add_phrases(
+        token: UUID,
+        data: AddPhrasesData,
+        phrase_service: PhraseService = Depends(lambda: di.services.phrase_service())
+) -> AddPhrasesResponse:
+    try:
+        response: AddPhrasesResponse = await phrase_service.add_phrases(token, data)
+        return response
     except InvalidTokenError:
         raise TokenInvalidateHTTPException()
     except ServiceError:

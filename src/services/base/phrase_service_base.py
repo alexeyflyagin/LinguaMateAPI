@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 
 from src.data.base.session_manager_base import SessionManager
-from src.models.phrase import AddPhraseData, AddPhraseResponse, PhraseEntity, GetPhrasesResponse, GetPhrasesData
+from src.models.phrase import AddPhraseData, AddPhraseResponse, GetPhrasesResponse, GetPhrasesData, \
+    AddPhrasesData, AddPhrasesResponse
 
 
 class PhraseService(ABC):
@@ -18,6 +19,25 @@ class PhraseService(ABC):
     ) -> AddPhraseResponse:
         """
         Add the new phrase in the phrasebook.
+
+        :param token:
+        :param data:
+
+        :return:
+
+        :raises NotUniqueError: If the phrase already exists in the phrasebook
+        :raises InvalidTokenError:
+        :raises ServiceError:
+        """
+
+    @abstractmethod
+    async def add_phrases(
+            self,
+            token: UUID,
+            data: AddPhrasesData,
+    ) -> AddPhrasesResponse:
+        """
+        Add the list of phrases in the phrasebook (multiple)
 
         :param token:
         :param data:

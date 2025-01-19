@@ -1,4 +1,5 @@
 from pydantic import BaseModel, field_validator, ConfigDict, Field
+from pydantic_core.core_schema import ValidationInfo
 
 from src.checks import validate_not_empty_str, validate_not_empty
 
@@ -18,8 +19,21 @@ class AddPhraseData(BaseModel):
         return v
 
 
+class AddPhrasesData(BaseModel):
+    phrases: list[AddPhraseData]
+
+    @field_validator('phrases')
+    def check_translation_not_empty(cls, v: list[str], info: ValidationInfo):
+        validate_not_empty(v, info.field_name)
+        return v
+
+
 class AddPhraseResponse(BaseModel):
     id: int
+
+class AddPhrasesResponse(BaseModel):
+    added_ids: dict[str, int]
+    already_exists: list[str]
 
 
 class PhraseEntity(BaseModel):
