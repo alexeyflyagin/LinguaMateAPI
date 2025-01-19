@@ -8,3 +8,4 @@ PATH_TO_ENV = os.path.join(PATH_TO_PROJECT, '.env')
 dotenv.load_dotenv(PATH_TO_ENV)
 
 DB_URL = os.getenv("DB_URL")
+BOT_KEY = os.getenv("BOT_KEY")

@@ -9,7 +9,7 @@ class AppContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     data = providers.Container(DataContainer, config=config)
-    services = providers.Container(ServiceContainer, data_container=data)
+    services = providers.Container(ServiceContainer, config=config, data_container=data)
 
 
 di: AppContainer
@@ -17,3 +17,4 @@ di: AppContainer
 
 di = AppContainer()
 di.config.DB_URL.from_value(config.DB_URL)
+di.config.BOT_KEY.from_value(config.BOT_KEY)

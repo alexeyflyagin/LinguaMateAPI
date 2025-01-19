@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.api.exceptions import InternalServerHTTPException
 from src.di.app_container import di
-from src.services.exceptions.service import AccountNotFound, ServiceError, AccountAlreadyExistsError
+from src.services.exceptions.service import AccountNotFound, ServiceError, AccountAlreadyExistsError, AccessError
 from src.models.auth import AuthData, AuthResponse, SignupData, CheckTokenResponse
 from src.services.base.auth_service_base import AuthService
 
@@ -37,13 +37,17 @@ async def auth(
         raise InternalServerHTTPException()
 
 
-@router.post("/signup/")
-async def sign_up(
+@router.post("/{bot_key}/signup/")
+async def signup(
+        bot_key: UUID,
         signup_data: SignupData,
         auth_service: AuthService = Depends(lambda: di.services.auth_service())
 ):
     try:
-        await auth_service.signup(signup_data)
+        await auth_service.signup(bot_key, signup_data)
+    except AccessError:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="The bot key is invalid.")
     except AccountAlreadyExistsError:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Account with this phone number already exists.")

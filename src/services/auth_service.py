@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.dao import dao_account, dao_session
 from src.data.base.session_manager_base import SessionManager
 from src.services.exceptions.service import ServiceError, AccountNotFound, TokenGenerationError, \
-    AccountAlreadyExistsError
+    AccountAlreadyExistsError, AccessError
 from src.models.auth import AuthData, AuthResponse, SignupData, CheckTokenResponse
 from src.services.base.auth_service_base import AuthService
 from src.services.utils import raise_exception_if_none, raise_exception_if_not_none
@@ -14,7 +14,8 @@ from src.services.utils import raise_exception_if_none, raise_exception_if_not_n
 
 class AuthServiceImpl(AuthService):
 
-    def __init__(self, session_manager: SessionManager):
+    def __init__(self, session_manager: SessionManager, bot_key: str):
+        self.bot_key = UUID(bot_key)
         super().__init__(session_manager)
 
     @staticmethod
@@ -54,10 +55,13 @@ class AuthServiceImpl(AuthService):
 
     async def signup(
             self,
+            bot_key: UUID,
             signup_data: SignupData
     ):
         try:
             async with self._session_manager.get_session() as s:
+                if self.bot_key != bot_key:
+                    raise AccessError('The bot key is invalid.')
                 account = await dao_account.get_by_phone_number(s, signup_data.phone_number)
                 raise_exception_if_not_none(account, e=AccountAlreadyExistsError())
                 account = await dao_account.create(
@@ -66,6 +70,9 @@ class AuthServiceImpl(AuthService):
                 )
                 s.add(account)
                 await s.commit()
+        except AccessError as e:
+            logging.debug(e)
+            raise
         except AccountAlreadyExistsError as e:
             logging.info(e)
             raise

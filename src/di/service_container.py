@@ -5,11 +5,13 @@ from src.services.phrase_service import PhraseServiceImpl
 
 
 class ServiceContainer(containers.DeclarativeContainer):
+    config = providers.Configuration()
     data_container = providers.DependenciesContainer()
 
     auth_service = providers.Factory(
         AuthServiceImpl,
         session_manager=data_container.session_manager,
+        bot_key=config.BOT_KEY,
     )
 
     phrase_service = providers.Factory(

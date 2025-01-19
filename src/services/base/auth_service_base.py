@@ -29,13 +29,16 @@ class AuthService(ABC):
     @abstractmethod
     async def signup(
             self,
+            bot_key: UUID,
             signup_data: SignupData
     ):
         """
         Create the new account.
 
+        :param bot_key: The secret key to confirm the link between the Telegram bot and the API.
         :param signup_data:
 
+        :raises AccessError: If the bot key is invalid.
         :raises AccountAlreadyExistsError:
         :raises ServiceError:
         """
