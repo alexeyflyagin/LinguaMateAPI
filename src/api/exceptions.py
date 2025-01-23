@@ -10,10 +10,18 @@ class InternalServerHTTPException(HTTPException):
         )
 
 
-class TokenInvalidateHTTPException(HTTPException):
+class InvalidTokenHTTPException(HTTPException):
 
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token."
+        )
+
+class InvalidTrustedKeyHTTPException(HTTPException):
+
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The trusted key is invalid."
         )

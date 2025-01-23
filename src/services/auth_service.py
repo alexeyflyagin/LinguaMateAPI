@@ -14,8 +14,8 @@ from src.services.utils import raise_exception_if_none, raise_exception_if_not_n
 
 class AuthServiceImpl(AuthService):
 
-    def __init__(self, session_manager: SessionManager, bot_key: str):
-        self.bot_key = UUID(bot_key)
+    def __init__(self, session_manager: SessionManager, trusted_key: str):
+        self.trusted_key = UUID(trusted_key)
         super().__init__(session_manager)
 
     @staticmethod
@@ -29,10 +29,13 @@ class AuthServiceImpl(AuthService):
 
     async def auth(
             self,
+            trusted_key: UUID,
             auth_data: AuthData
     ) -> AuthResponse:
         try:
             async with self._session_manager.get_session() as s:
+                if self.trusted_key != trusted_key:
+                    raise AccessError('The trusted key is invalid.')
                 account = await dao_account.get_by_phone_number(s, auth_data.phone_number)
                 raise_exception_if_none(account, e=AccountNotFound())
 
@@ -43,7 +46,7 @@ class AuthServiceImpl(AuthService):
                 res = AuthResponse(account_id=account.id, token=new_token, nickname=account.nickname)
                 await s.commit()
                 return res
-        except AccountNotFound as e:
+        except (AccountNotFound, AccessError) as e:
             logging.debug(e)
             raise
         except TokenGenerationError as e:
@@ -55,13 +58,13 @@ class AuthServiceImpl(AuthService):
 
     async def signup(
             self,
-            bot_key: UUID,
+            trusted_key: UUID,
             signup_data: SignupData
     ):
         try:
             async with self._session_manager.get_session() as s:
-                if self.bot_key != bot_key:
-                    raise AccessError('The bot key is invalid.')
+                if self.trusted_key != trusted_key:
+                    raise AccessError('The trusted key is invalid.')
                 account = await dao_account.get_by_phone_number(s, signup_data.phone_number)
                 raise_exception_if_not_none(account, e=AccountAlreadyExistsError())
                 account = await dao_account.create(
@@ -77,12 +80,17 @@ class AuthServiceImpl(AuthService):
             logging.error(e)
             raise ServiceError()
 
-    async def check_token(self, token: UUID) -> CheckTokenResponse:
+    async def check_token(self, trusted_key: UUID, token: UUID) -> CheckTokenResponse:
         try:
             async with self._session_manager.get_session() as s:
+                if self.trusted_key != trusted_key:
+                    raise AccessError('The trusted key is invalid.')
                 account = await dao_session.get_by_token(s, token)
                 is_valid = True if account else False
                 return CheckTokenResponse(is_valid=is_valid)
+        except AccessError as e:
+            logging.debug(e)
+            raise
         except Exception as e:
             logging.error(e)
             raise ServiceError()

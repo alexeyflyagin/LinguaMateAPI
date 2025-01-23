@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette import status
 
-from src.api.exceptions import TokenInvalidateHTTPException, InternalServerHTTPException
+from src.api.exceptions import InvalidTokenHTTPException, InternalServerHTTPException
 from src.di.app_container import di
 from src.models.phrase import AddPhraseResponse, AddPhraseData, PhraseEntity, GetPhrasesResponse, GetPhrasesData, \
     AddPhrasesData, AddPhrasesResponse, GetFlowPhraseResponse
@@ -29,7 +29,7 @@ async def add_phrase(
     except NotUniqueError:
         raise HTTPException(status.HTTP_409_CONFLICT, detail="This phrase already exists.")
     except InvalidTokenError:
-        raise TokenInvalidateHTTPException()
+        raise InvalidTokenHTTPException()
     except ServiceError:
         raise InternalServerHTTPException()
 
@@ -44,7 +44,7 @@ async def add_phrases(
         response: AddPhrasesResponse = await phrase_service.add_phrases(token, data)
         return response
     except InvalidTokenError:
-        raise TokenInvalidateHTTPException()
+        raise InvalidTokenHTTPException()
     except ServiceError:
         raise InternalServerHTTPException()
 
@@ -61,7 +61,7 @@ async def get_phrase_by_id(
     except NotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Phrase not found.")
     except InvalidTokenError:
-        raise TokenInvalidateHTTPException()
+        raise InvalidTokenHTTPException()
     except ServiceError:
         raise InternalServerHTTPException()
 
@@ -75,7 +75,7 @@ async def get_phrases(
     try:
         return await phrase_service.get_phrases(token, data)
     except InvalidTokenError:
-        raise TokenInvalidateHTTPException()
+        raise InvalidTokenHTTPException()
     except ServiceError:
         raise InternalServerHTTPException()
 
@@ -90,6 +90,6 @@ async def get_flow_phrase(
     except NotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="The phrasebook is empty.")
     except InvalidTokenError:
-        raise TokenInvalidateHTTPException()
+        raise InvalidTokenHTTPException()
     except ServiceError:
         raise InternalServerHTTPException()

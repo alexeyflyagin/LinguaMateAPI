@@ -11,7 +11,7 @@ class ServiceContainer(containers.DeclarativeContainer):
     auth_service = providers.Factory(
         AuthServiceImpl,
         session_manager=data_container.session_manager,
-        bot_key=config.TRUSTED_KEY,
+        trusted_key=config.TRUSTED_KEY,
     )
 
     phrase_service = providers.Factory(
