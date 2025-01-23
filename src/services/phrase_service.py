@@ -4,9 +4,9 @@ from uuid import UUID
 from src.dao import dao_account, dao_session, dao_phrase
 from src.data.base.session_manager_base import SessionManager
 from src.models.phrase import AddPhraseData, AddPhraseResponse, PhraseEntity, GetPhrasesResponse, GetPhrasesData, \
-    AddPhrasesData, AddPhrasesResponse
+    AddPhrasesData, AddPhrasesResponse, GetFlowPhraseResponse
 from src.services.base.phrase_service_base import PhraseService
-from src.services.exceptions.service import ServiceError, InvalidTokenError, NotUniqueError, NotFoundError, AccessError
+from src.services.exceptions.service import ServiceError, InvalidTokenError, NotUniqueError, NotFoundError
 from src.services.utils import raise_exception_if_none, raise_exception_if_not_none
 
 
@@ -34,10 +34,10 @@ class PhraseServiceImpl(PhraseService):
                 await s.commit()
                 return res
         except NotUniqueError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except InvalidTokenError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except Exception as e:
             logging.error(e)
@@ -68,10 +68,10 @@ class PhraseServiceImpl(PhraseService):
                 await s.commit()
                 return res
         except InvalidTokenError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except Exception as e:
-            logging.error(e)
+            logging.debug(e)
             raise ServiceError()
 
     async def get_phrase_by_id(
@@ -89,10 +89,10 @@ class PhraseServiceImpl(PhraseService):
                     raise NotFoundError()
                 return PhraseEntity.model_validate(phrase)
         except NotFoundError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except InvalidTokenError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except Exception as e:
             logging.error(e)
@@ -114,7 +114,23 @@ class PhraseServiceImpl(PhraseService):
                 total = await dao_phrase.get_total_count_by_account_id(s, account_id=account.id)
                 return GetPhrasesResponse(total=total, offset=data.page, limit=data.limit, phrases=phrase_entities)
         except InvalidTokenError as e:
-            logging.info(e)
+            logging.debug(e)
+            raise
+        except Exception as e:
+            logging.error(e)
+            raise ServiceError()
+
+    async def get_flow_phrase(self, token: UUID) -> GetFlowPhraseResponse:
+        try:
+            async with self._session_manager.get_session() as s:
+                session = await dao_session.get_by_token(s, token)
+                raise_exception_if_none(session, e=InvalidTokenError())
+                account = await dao_account.get_by_id(s, session.account_id)
+                phrase = await dao_phrase.get_random_one_by_account_id(s, account_id=account.id)
+                raise_exception_if_none(session, e=NotFoundError(f"A phrasebook (account_id={account.id}) is empty"))
+                return GetFlowPhraseResponse(phrase_entity=PhraseEntity.model_validate(phrase))
+        except (InvalidTokenError, NotFoundError) as e:
+            logging.debug(e)
             raise
         except Exception as e:
             logging.error(e)

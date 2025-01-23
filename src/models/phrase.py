@@ -31,6 +31,7 @@ class AddPhrasesData(BaseModel):
 class AddPhraseResponse(BaseModel):
     id: int
 
+
 class AddPhrasesResponse(BaseModel):
     added_ids: dict[str, int]
     already_exists: list[str]
@@ -57,3 +58,7 @@ class GetPhrasesResponse(BaseModel):
     offset: int
     limit: int
     phrases: list[PhraseEntity]
+
+
+class GetFlowPhraseResponse(BaseModel):
+    phrase_entity: PhraseEntity

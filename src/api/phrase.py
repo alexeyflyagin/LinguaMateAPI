@@ -7,7 +7,7 @@ from starlette import status
 from src.api.exceptions import TokenInvalidateHTTPException, InternalServerHTTPException
 from src.di.app_container import di
 from src.models.phrase import AddPhraseResponse, AddPhraseData, PhraseEntity, GetPhrasesResponse, GetPhrasesData, \
-    AddPhrasesData, AddPhrasesResponse
+    AddPhrasesData, AddPhrasesResponse, GetFlowPhraseResponse
 from src.services.base.phrase_service_base import PhraseService
 from src.services.exceptions.service import InvalidTokenError, ServiceError, NotUniqueError, NotFoundError
 
@@ -74,6 +74,21 @@ async def get_phrases(
 ) -> GetPhrasesResponse:
     try:
         return await phrase_service.get_phrases(token, data)
+    except InvalidTokenError:
+        raise TokenInvalidateHTTPException()
+    except ServiceError:
+        raise InternalServerHTTPException()
+
+
+@router.get("/getFlowPhrase", response_model=GetFlowPhraseResponse)
+async def get_flow_phrase(
+        token: UUID,
+        phrase_service: PhraseService = Depends(lambda: di.services.phrase_service())
+) -> GetFlowPhraseResponse:
+    try:
+        return await phrase_service.get_flow_phrase(token)
+    except NotFoundError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="The phrasebook is empty.")
     except InvalidTokenError:
         raise TokenInvalidateHTTPException()
     except ServiceError:

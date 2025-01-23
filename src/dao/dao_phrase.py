@@ -52,6 +52,18 @@ async def get_total_count_by_account_id(
     return r.scalar()
 
 
+async def get_random_one_by_account_id(
+        s: AsyncSession,
+        account_id: int,
+        block_row: bool = False,
+) -> PhraseOrm:
+    query = select(PhraseOrm).filter(PhraseOrm.account_id == account_id)
+    query = query.order_by(func.random()).limit(limit=1)
+    query = set_block_row_if(query, block_row)
+    r = await s.execute(query)
+    return r.scalar_one_or_none()
+
+
 async def create(
         s: AsyncSession,
         account_id: int,

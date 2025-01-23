@@ -17,4 +17,4 @@ di: AppContainer
 
 di = AppContainer()
 di.config.DB_URL.from_value(config.DB_URL)
-di.config.BOT_KEY.from_value(config.BOT_KEY)
+di.config.TRUSTED_KEY.from_value(config.TRUSTED_KEY)

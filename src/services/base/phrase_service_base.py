@@ -3,7 +3,7 @@ from uuid import UUID
 
 from src.data.base.session_manager_base import SessionManager
 from src.models.phrase import AddPhraseData, AddPhraseResponse, GetPhrasesResponse, GetPhrasesData, \
-    AddPhrasesData, AddPhrasesResponse
+    AddPhrasesData, AddPhrasesResponse, GetFlowPhraseResponse
 
 
 class PhraseService(ABC):
@@ -20,11 +20,6 @@ class PhraseService(ABC):
         """
         Add the new phrase in the phrasebook.
 
-        :param token:
-        :param data:
-
-        :return:
-
         :raises NotUniqueError: If the phrase already exists in the phrasebook
         :raises InvalidTokenError:
         :raises ServiceError:
@@ -39,11 +34,6 @@ class PhraseService(ABC):
         """
         Add the list of phrases in the phrasebook (multiple)
 
-        :param token:
-        :param data:
-
-        :return:
-
         :raises InvalidTokenError:
         :raises ServiceError:
         """
@@ -56,11 +46,6 @@ class PhraseService(ABC):
     ) -> AddPhraseResponse:
         """
         Get the phrase from the phrasebook by `phrase_id`.
-
-        :param token:
-        :param phrase_id:
-
-        :return:
 
         :raises NotFoundError:
         :raises InvalidTokenError:
@@ -76,11 +61,19 @@ class PhraseService(ABC):
         """
         Get the phrases list from a phrasebook.
 
-        :param token:
-        :param data:
+        :raises InvalidTokenError:
+        :raises ServiceError:
+        """
 
-        :return:
+    @abstractmethod
+    async def get_flow_phrase(
+            self,
+            token: UUID
+    ) -> GetFlowPhraseResponse:
+        """
+        Get a phrase from a phrasebook to memorize.
 
+        :raises NotFoundError: If the phrasebook is empty
         :raises InvalidTokenError:
         :raises ServiceError:
         """

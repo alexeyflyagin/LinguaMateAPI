@@ -44,7 +44,7 @@ class AuthServiceImpl(AuthService):
                 await s.commit()
                 return res
         except AccountNotFound as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except TokenGenerationError as e:
             logging.critical(e)
@@ -74,7 +74,7 @@ class AuthServiceImpl(AuthService):
             logging.debug(e)
             raise
         except AccountAlreadyExistsError as e:
-            logging.info(e)
+            logging.debug(e)
             raise
         except Exception as e:
             logging.error(e)
