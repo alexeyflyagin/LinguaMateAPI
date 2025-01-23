@@ -61,4 +61,4 @@ class GetPhrasesResponse(BaseModel):
 
 
 class GetFlowPhraseResponse(BaseModel):
-    phrase_entity: PhraseEntity
+    phrase: PhraseEntity

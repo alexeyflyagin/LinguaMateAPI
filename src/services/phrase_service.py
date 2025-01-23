@@ -121,7 +121,7 @@ class PhraseServiceImpl(PhraseService):
                 account = await dao_account.get_by_id(s, session.account_id)
                 phrase = await dao_phrase.get_random_one_by_account_id(s, account_id=account.id)
                 raise_exception_if_none(session, e=NotFoundError(f"A phrasebook (account_id={account.id}) is empty"))
-                return GetFlowPhraseResponse(phrase_entity=PhraseEntity.model_validate(phrase))
+                return GetFlowPhraseResponse(phrase=PhraseEntity.model_validate(phrase))
         except (InvalidTokenError, NotFoundError) as e:
             logging.debug(e)
             raise
