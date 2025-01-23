@@ -33,10 +33,7 @@ class PhraseServiceImpl(PhraseService):
                 res = AddPhraseResponse(id=phrase.id)
                 await s.commit()
                 return res
-        except NotUniqueError as e:
-            logging.debug(e)
-            raise
-        except InvalidTokenError as e:
+        except (InvalidTokenError, NotUniqueError) as e:
             logging.debug(e)
             raise
         except Exception as e:
@@ -84,14 +81,10 @@ class PhraseServiceImpl(PhraseService):
                 session = await dao_session.get_by_token(s, token)
                 raise_exception_if_none(session, e=InvalidTokenError())
                 account = await dao_account.get_by_id(s, session.account_id)
-                phrase = await dao_phrase.get_by_id(s, id_=phrase_id)
-                if phrase is None or phrase.account_id != account.id:
-                    raise NotFoundError()
+                phrase = await dao_phrase.get_by_id_and_account_id(s, id_=phrase_id, account_id=account.id)
+                raise_exception_if_none(phrase, e=NotFoundError("The phrase was not found in the phrasebook"))
                 return PhraseEntity.model_validate(phrase)
-        except NotFoundError as e:
-            logging.debug(e)
-            raise
-        except InvalidTokenError as e:
+        except (InvalidTokenError, NotFoundError) as e:
             logging.debug(e)
             raise
         except Exception as e:

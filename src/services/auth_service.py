@@ -70,10 +70,7 @@ class AuthServiceImpl(AuthService):
                 )
                 s.add(account)
                 await s.commit()
-        except AccessError as e:
-            logging.debug(e)
-            raise
-        except AccountAlreadyExistsError as e:
+        except (AccountAlreadyExistsError, AccessError) as e:
             logging.debug(e)
             raise
         except Exception as e:

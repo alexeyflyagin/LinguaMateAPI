@@ -16,6 +16,18 @@ async def get_by_id(
     return r.scalar_one_or_none()
 
 
+async def get_by_id_and_account_id(
+        s: AsyncSession,
+        id_: int,
+        account_id: int,
+        block_row: bool = False
+) -> PhraseOrm | None:
+    query = select(PhraseOrm).filter(PhraseOrm.id == id_).filter(PhraseOrm.account_id == account_id)
+    query = set_block_row_if(query, block_row)
+    r = await s.execute(query)
+    return r.scalar_one_or_none()
+
+
 async def get_by_account_id_and_phrase_lower(
         s: AsyncSession,
         account_id: int,
