@@ -1,5 +1,6 @@
 from dependency_injector import containers, providers
 
+from src.services.account_service import AccountServiceImpl
 from src.services.auth_service import AuthServiceImpl
 from src.services.phrase_service import PhraseServiceImpl
 
@@ -12,6 +13,11 @@ class ServiceContainer(containers.DeclarativeContainer):
         AuthServiceImpl,
         session_manager=data_container.session_manager,
         trusted_key=config.TRUSTED_KEY,
+    )
+
+    account_service = providers.Factory(
+        AccountServiceImpl,
+        session_manager=data_container.session_manager,
     )
 
     phrase_service = providers.Factory(

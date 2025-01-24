@@ -8,8 +8,8 @@ from src.di.service_container import ServiceContainer
 class AppContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
 
-    data = providers.Container(DataContainer, config=config)
-    services = providers.Container(ServiceContainer, config=config, data_container=data)
+    data: DataContainer = providers.Container(DataContainer, config=config)
+    services: ServiceContainer = providers.Container(ServiceContainer, config=config, data_container=data)
 
 
 di: AppContainer
