@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 from uuid import UUID
 
@@ -86,7 +87,8 @@ async def get_flow_phrase(
         phrase_service: PhraseService = Depends(lambda: di.services.phrase_service())
 ) -> GetFlowPhraseResponse:
     try:
-        return await phrase_service.get_flow_phrase(token)
+        res = await phrase_service.get_flow_phrase(token)
+        return res
     except NotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="The phrasebook is empty.")
     except InvalidTokenError:
