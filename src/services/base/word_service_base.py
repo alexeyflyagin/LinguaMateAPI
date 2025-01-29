@@ -2,50 +2,50 @@ from abc import ABC, abstractmethod
 from uuid import UUID
 
 from src.data.base.session_manager_base import SessionManager
-from src.models.phrase import AddPhraseData, AddPhraseResponse, GetPhrasesResponse, GetPhrasesData, \
-    AddPhrasesData, AddPhrasesResponse, GetFlowPhraseResponse, PhraseEntity
+from src.models.word import AddWordData, AddWordResponse, AddWordsData, AddWordsResponse, GetWordsResponse, \
+    GetWordsData, GetWordFlowResponse
 
 
-class PhraseService(ABC):
+class WordService(ABC):
 
     def __init__(self, session_manager: SessionManager):
         self._session_manager = session_manager
 
     @abstractmethod
-    async def add_phrase(
+    async def add_word(
             self,
             token: UUID,
-            data: AddPhraseData,
-    ) -> AddPhraseResponse:
+            data: AddWordData,
+    ) -> AddWordResponse:
         """
-        Add the new phrase in the phrasebook.
+        Add the new word in the dictionary.
 
-        :raises NotUniqueError: If the phrase already exists in the phrasebook
+        :raises NotUniqueError: If the phrase already exists in the dictionary
         :raises InvalidTokenError:
         :raises ServiceError:
         """
 
     @abstractmethod
-    async def add_phrases(
+    async def add_words(
             self,
             token: UUID,
-            data: AddPhrasesData,
-    ) -> AddPhrasesResponse:
+            data: AddWordsData,
+    ) -> AddWordsResponse:
         """
-        Add the list of phrases in the phrasebook (multiple)
+        Add the list of words in the dictionary (multiple)
 
         :raises InvalidTokenError:
         :raises ServiceError:
         """
 
     @abstractmethod
-    async def get_phrase_by_id(
+    async def get_word_by_id(
             self,
             token: UUID,
-            phrase_id: int,
-    ) -> PhraseEntity:
+            word_id: int,
+    ) -> GetWordsResponse:
         """
-        Get the phrase from the phrasebook by `phrase_id`.
+        Get the word from the dictionary by `word_id`.
 
         :raises NotFoundError:
         :raises InvalidTokenError:
@@ -53,27 +53,27 @@ class PhraseService(ABC):
         """
 
     @abstractmethod
-    async def get_phrases(
+    async def get_words(
             self,
             token: UUID,
-            data: GetPhrasesData,
-    ) -> GetPhrasesResponse:
+            data: GetWordsData,
+    ) -> GetWordsResponse:
         """
-        Get the phrase list from a phrasebook.
+        Get the word list from a dictionary.
 
         :raises InvalidTokenError:
         :raises ServiceError:
         """
 
     @abstractmethod
-    async def get_flow_phrase(
+    async def get_word_flow(
             self,
             token: UUID
-    ) -> GetFlowPhraseResponse:
+    ) -> GetWordFlowResponse:
         """
-        Get a phrase from a phrasebook to memorize.
+        Get a word from a dictionary to memorize.
 
-        :raises NotFoundError: If the phrasebook is empty
+        :raises NotFoundError: If the dictionary is empty
         :raises InvalidTokenError:
         :raises ServiceError:
         """
