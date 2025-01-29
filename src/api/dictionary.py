@@ -51,11 +51,11 @@ async def add_words(
 @router.get("/getWordById", response_model=WordEntity)
 async def get_word_by_id(
         token: UUID,
-        phrase_id: int,
+        word_id: int,
         word_service: WordService = Depends(lambda: di.services.word_service())
 ) -> WordEntity:
     try:
-        return await word_service.get_word_by_id(token, phrase_id)
+        return await word_service.get_word_by_id(token, word_id)
     except NotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="The word not found.")
     except InvalidTokenError:

@@ -9,6 +9,7 @@ class AccountInfoResponse(BaseModel):
     nickname: str
     phone_number: str
     total_phrases: int
+    total_words: int
 
     @field_validator('nickname')
     def validate_nickname(cls, v: str, info: ValidationInfo):
