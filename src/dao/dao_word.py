@@ -34,7 +34,7 @@ async def get_by_account_id_and_word(
         word: str,
         block_row: bool = False
 ) -> WordOrm | None:
-    query = select(WordOrm).filter(WordOrm.account_id == account_id).filter(WordOrm.word == word)
+    query = select(WordOrm).filter(WordOrm.account_id == account_id).filter(WordOrm.word == word.lower())
     query = set_block_row_if(query, block_row)
     r = await s.execute(query)
     return r.scalar_one_or_none()
