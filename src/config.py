@@ -1,3 +1,4 @@
+import logging
 import os
 
 import dotenv
@@ -9,3 +10,5 @@ dotenv.load_dotenv(PATH_TO_ENV)
 
 DB_URL = os.getenv("DB_URL")
 TRUSTED_KEY = os.getenv("TRUSTED_KEY")
+
+logging.basicConfig(level=logging.DEBUG)

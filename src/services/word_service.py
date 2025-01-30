@@ -50,7 +50,7 @@ class WordServiceImpl(WordService):
                         already_exists.append(word_data.word)
                         continue
                     word = await dao_word.create(
-                        s, account_id=account.id, word=data.word.lower(), translations=word_data.translations,
+                        s, account_id=account.id, word=word_data.word.lower(), translations=word_data.translations,
                         transcription=word_data.transcription)
                     added_words_ids[word.word] = word.id
                 res = AddWordsResponse(added_ids=added_words_ids, already_exists=already_exists)
